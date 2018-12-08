@@ -110,6 +110,24 @@ switch (tool) {
 			option.gasLimit || 2000000
 		);
 		break;
+	case 'stake':
+		contractWrapper.stakeRaw(
+			kovanManagerAccount.address,
+			kovanManagerAccount.privateKey,
+			contractWrapper.web3.utils.toWei('1000', 'ether'),
+			option.gasPrice || 2000000000,
+			option.gasLimit || 2000000
+		);
+		break;
+	case 'unsTake':
+		contractWrapper.unStakeRaw(
+			kovanManagerAccount.address,
+			kovanManagerAccount.privateKey,
+			contractWrapper.web3.utils.toWei('1000', 'ether'),
+			option.gasPrice || 2000000000,
+			option.gasLimit || 2000000
+		);
+		break;
 	case 'commitPrice':
 		const time = Math.floor(
 			moment()

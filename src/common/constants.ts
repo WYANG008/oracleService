@@ -3,7 +3,7 @@ export const NETWORK_ID_KOVAN = 42;
 export const PROVIDER_INFURA_KOVAN = 'https://kovan.infura.io';
 export const SRC_INFURA = 'infura';
 
-export const CONTRACT_ADDR = '0xbff891cD76DE5f3Fa84d8aEF5EBBbC8077b3a829';
+export const CONTRACT_ADDR = '0x1CCfEfdD1a6feB0425A14E41Ad604932e0e0664F';
 
 export const RELAYER_PORTS = [8000, 8001, 8002]
 export const UI_SOCKET_PORT = 3000;

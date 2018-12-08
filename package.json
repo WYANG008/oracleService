@@ -19,7 +19,9 @@
 		"startOracle": "ts-node ./src/index startOracle",
 		"startOracleRegularly": "ts-node ./src/index startOracleRegularly",
 		"addList": "ts-node ./src/index addList",
-		"commitPrice": "ts-node ./src/index commitPrice"
+		"commitPrice": "ts-node ./src/index commitPrice",
+		"stake": "ts-node ./src/index stake",
+		"unstake": "ts-node ./src/index unstake"
 	},
 	"jest": {
 		"testEnvironment": "node",

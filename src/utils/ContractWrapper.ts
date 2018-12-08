@@ -88,6 +88,82 @@ export default class ContractWrapper {
 		};
 	}
 
+	public async stakeRaw(
+		address: string,
+		privateKey: string,
+		amtInWei: number,
+		gasPrice: number,
+		gasLimit: number,
+		nonce: number = -1
+	) {
+
+		util.logInfo(`the account ${address} is starting stake`);
+		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
+		const abi = {
+			"inputs": [
+				{
+				  "name": "amtInWei",
+				  "type": "uint256"
+				}
+			  ],
+			  "name": "stake",
+			  "outputs": []
+		};
+		const input = [amtInWei];
+
+		const command = this.generateTxString(abi, input);
+		console.log(command);
+		await this.sendTransactionRaw(
+			address,
+			privateKey,
+			this.address,
+			0,
+			gasPrice,
+			gasLimit,
+			nonce,
+			command
+		);
+
+		
+	}
+
+	public async unStakeRaw(
+		address: string,
+		privateKey: string,
+		amtInWei: number,
+		gasPrice: number,
+		gasLimit: number,
+		nonce: number = -1
+	) {
+
+		util.logInfo(`the account ${address} is starting stake`);
+		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
+		const abi = {
+			"inputs": [
+				{
+				  "name": "amtInWei",
+				  "type": "uint256"
+				}
+			  ],
+			  "name": "unStake",
+			  "outputs": []
+		};
+		const input = [amtInWei];
+
+		const command = this.generateTxString(abi, input);
+		console.log(command);
+		await this.sendTransactionRaw(
+			address,
+			privateKey,
+			this.address,
+			0,
+			gasPrice,
+			gasLimit,
+			nonce,
+			command
+		);
+	}
+
 	public async startOracleRaw(
 		address: string,
 		privateKey: string,
