@@ -1,9 +1,9 @@
 {
-	"name": "israfel-relayer",
+	"name": "oracle-service",
 	"version": "1.0.0",
 	"private": true,
-	"description": "Israfel Relayer",
-	"author": "FinBook Pte Ltd",
+	"description": "oracle service",
+	"author": "",
 	"scripts": {
 		"test": "jest",
 		"tslint": "tslint -c tslint.json -p tsconfig.json src/**/*.ts{,x} --fix",
