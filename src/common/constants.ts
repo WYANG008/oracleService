@@ -2,6 +2,8 @@ export const CONTRACT_ADDRESS = '0xx';
 export const NETWORK_ID_KOVAN = 42;
 export const PROVIDER_INFURA_KOVAN = 'https://kovan.infura.io';
 
+export const RELAYER_PORTS = [8000, 8001, 8002]
+export const UI_SOCKET_PORT = 3000;
 export const LOG_INFO = 'INFO';
 export const LOG_DEBUG = 'DEBUG';
 export const LOG_ERROR = 'ERROR';

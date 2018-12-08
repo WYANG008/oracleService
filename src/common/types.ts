@@ -10,12 +10,13 @@ export interface IPrice {
 
 export interface IStake {
 	relayerID: string;
-	// timestamp: number;
+	userPK: string;
+	timestamp: number;
 	stakeAmt: number;
-	sign: string;
+	// sign: string;
 	// price: number;
 }
 
-export interface IOption{
+export interface IOption {
 	source: string;
 }
