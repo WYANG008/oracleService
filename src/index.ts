@@ -58,7 +58,8 @@ switch (tool) {
 		const nextHour = Math.floor(
 			moment()
 				.utc()
-				.endOf('hours').add(-20, 'minutes')
+				.endOf('hours')
+				.add(-20, 'minutes')
 				.valueOf() / 1000
 		);
 		contractWrapper.startOracleRaw(
@@ -74,6 +75,22 @@ switch (tool) {
 			kovanManagerAccount.address,
 			kovanManagerAccount.privateKey,
 			option.address,
+			option.gasPrice || 2000000000,
+			option.gasLimit || 2000000
+		);
+		break;
+	case 'commitPrice':
+		const time = Math.floor(
+			moment()
+				.utc()
+				.endOf('minutes')
+				.valueOf() / 1000
+		);
+		contractWrapper.commitPriceRaw(
+			kovanManagerAccount.address,
+			kovanManagerAccount.privateKey,
+			100 * 1e18,
+			time,
 			option.gasPrice || 2000000000,
 			option.gasLimit || 2000000
 		);

@@ -17,7 +17,8 @@
 		"getStates": "ts-node ./src/index getStates",
 		"getStakes": "ts-node ./src/index getStakes",
 		"startOracle": "ts-node ./src/index startOracle",
-		"addList": "ts-node ./src/index addList"
+		"addList": "ts-node ./src/index addList",
+		"commitPrice": "ts-node ./src/index commitPrice"
 	},
 	"jest": {
 		"testEnvironment": "node",

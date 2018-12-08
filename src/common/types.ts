@@ -54,3 +54,5 @@ export interface Signature {
 	r: string;
 	s: string;
 }
+
+// export interface IData { [string, number, number, string, string, string]}

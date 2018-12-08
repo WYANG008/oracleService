@@ -169,7 +169,7 @@ export default class ContractWrapper {
 		privateKey: string,
 		priceInWei: number,
 		timeInSecond: number,
-		signatures: Signature[],
+		// signatures: Signature[],
 		gasPrice: number,
 		gasLimit: number,
 		nonce: number = -1
@@ -185,36 +185,6 @@ export default class ContractWrapper {
 				{
 				  "name": "timeInSecond",
 				  "type": "uint256"
-				},
-				{
-				  "components": [
-					{
-					  "name": "addr",
-					  "type": "address"
-					},
-					{
-					  "name": "timeInSecond",
-					  "type": "uint256"
-					},
-					{
-					  "name": "stakes",
-					  "type": "uint256"
-					},
-					{
-					  "name": "v",
-					  "type": "uint8"
-					},
-					{
-					  "name": "r",
-					  "type": "bytes32"
-					},
-					{
-					  "name": "s",
-					  "type": "bytes32"
-					}
-				  ],
-				  "name": "delegatedStakes",
-				  "type": "tuple[3]"
 				}
 			  ],
 			  "name": "commitPrice",
@@ -223,9 +193,19 @@ export default class ContractWrapper {
 				  "name": "success",
 				  "type": "bool"
 				}
-			  ]
+			]
 		};
-		const input = [priceInWei, timeInSecond, signatures];
+		const input = [priceInWei, timeInSecond];
+			// [
+			// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s],
+			// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s],
+			// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s]
+			// 	// signatures[0],
+			// 	// signatures[1],
+			// 	// signatures[2]
+			// ]
+		// ];
+		console.log(input);
 
 		const command = this.generateTxString(abi, input);
 		console.log(command);
