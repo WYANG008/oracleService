@@ -1,27 +1,37 @@
 import { Contract } from 'web3/types';
 import util from './util';
-import Web3Util from './Web3Util';
+// import Web3Util from './Web3Util';
 import * as CST from '../common/constants';
 import {
 	//  IContractStates, 
 	IOption } from '../common/types';
+import Web3 from 'web3';
 // import { resolve } from 'dns';
 // const abiDecoder = require('abi-decoder');
-
+const Tx = require('ethereumjs-tx');
 
 export default class ContractWrapper {
-	public web3Util: Web3Util;
+	// public web3Util: Web3Util;
+	public web3: Web3;
 	public address: string;
 	public abi: any[];
 	public events: string[] = [];
 	public contract: Contract;
 
 	constructor(option: IOption) {
+		console.log('start constructor');
 		const abiFile = require('../static/abi.json');
 		this.abi = abiFile.abi;
-		this.web3Util = new Web3Util(null, option, option.provider);
+		// this.web3Util = new Web3Util(null, option);
 		this.address = CST.CONTRACT_ADDR;
-		this.contract = this.web3Util.createContract(this.abi, this.address);
+		const providerEngine = new Web3.providers.HttpProvider(option.provider)
+		this.web3 = new Web3(
+			providerEngine
+		);
+		// this.web3 = new Web3(option.provider);
+		this.contract = new this.web3.eth.Contract(this.abi, this.address);
+	
+		console.log(option.provider);
 	}
 
 	public async sendTransactionRaw(
@@ -34,12 +44,12 @@ export default class ContractWrapper {
 		nonce: number,
 		command: string
 	) {
-		nonce = nonce === -1 ? await this.web3Util.web3.eth.getTransactionCount(address) : nonce;
-		gasPrice = (await this.web3Util.web3.eth.getGasPrice()) || gasPrice;
-		this.web3Util.web3.eth
+		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
+		gasPrice = (await this.web3.eth.getGasPrice()) || gasPrice;
+		this.web3.eth
 			.sendSignedTransaction(
-				this.web3Util.signTx(
-					this.web3Util.createTxCommand(
+				this.signTx(
+					this.createTxCommand(
 						nonce,
 						gasPrice,
 						gasLimit,
@@ -54,25 +64,34 @@ export default class ContractWrapper {
 			.catch(error => util.logInfo(error));
 	}
 
-	public async getStates(){
-		// const states = await this.contract.methods.getStates().call();
-		const promiseList = [
-			this.contract.methods.period().call(),
-			this.contract.methods.mingRatio().call(),
-			this.contract.methods.openWindowTimeInSecond().call(),
-			this.contract.methods.lastPriceTimeInSecond().call(),
-			this.contract.methods.inceptionTimeInSecond().call()
-		];
-
-		const results = await Promise.all(promiseList);
-		return {
-			period: results[0],
-			mingRatio: results[1],
-			openWindowTimeInSecond: results[2],
-			lastPriceTimeInSecond: results[3],
-			inceptionTimeInSecond: results[4]
+	public signTx(rawTx: object, privateKey: string): string {
+		try {
+			const tx = new Tx(rawTx);
+			tx.sign(new Buffer(privateKey, 'hex'));
+			return tx.serialize().toString('hex');
+		} catch (err) {
+			util.logError(err);
+			return '';
 		}
-
 	}
 
+	public createTxCommand(
+		nonce: number,
+		gasPrice: number,
+		gasLimit: number,
+		toAddr: string,
+		amount: number,
+		data: string
+	) {
+		return {
+			nonce, // web3.utils.toHex(nonce), //nonce,
+			gasPrice: this.web3.utils.toHex(gasPrice),
+			gasLimit: this.web3.utils.toHex(gasLimit),
+			to: toAddr,
+			value: this.web3.utils.toHex(this.web3.utils.toWei(amount.toString(), 'ether')),
+			data
+		};
+	}
+
+	
 }

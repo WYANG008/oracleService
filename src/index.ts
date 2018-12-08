@@ -8,7 +8,7 @@ import { Dict, IOption } from './common/types';
 import Client from './server/client';
 import Relayer from './server/relayer';
 import util from './utils/util';
-// import ContractWrapper from './utils/ContractWrapper';
+import ContractWrapper from './utils/ContractWrapper';
 import Web3Util from './utils/Web3Util';
 
 const tool = process.argv[2];
@@ -24,8 +24,9 @@ if (!option.provider) {
 			infura.token;
 }
 
-// const contractWrapper = new ContractWrapper(option);
-const web3Util = new Web3Util(null, option, '');
+
+const contractWrapper = new ContractWrapper(option);
+const web3Util = new Web3Util(null, option, contractWrapper);
 
 const relayers: Dict<string, Relayer> = {};
 let client;
@@ -41,7 +42,7 @@ switch (tool) {
 		console.log(typeof client);
 		break;
 	case 'getStates':
-		web3Util.getListedCommitters();
+		web3Util.getStates();
 		break;
 	default:
 		break;
