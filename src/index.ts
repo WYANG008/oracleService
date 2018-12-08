@@ -44,6 +44,7 @@ switch (tool) {
 					.commitPrice(option)
 					.then(res => util.logInfo(JSON.stringify(res)));
 			});
+
 			// relayers[relayerID].commitPrice(option);
 			// setInterval(() => relayers[relayerID].commitPrice({} as any), 60 * 1000);
 		}

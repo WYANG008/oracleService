@@ -104,7 +104,7 @@ export default class Relayer {
 				status: 'successful',
 				data: this.getRelayerInfo(accountId)
 			};
-			this.clientSockets[socketID].send(message);
+			this.clientSockets[socketID].send(JSON.stringify(message));
 		}
 	}
 
@@ -126,7 +126,7 @@ export default class Relayer {
 				status: 'successful',
 				data: this.getRelayerInfo(accountId)
 			};
-			this.clientSockets[socketID].send(message);
+			this.clientSockets[socketID].send(JSON.stringify(message));
 		}
 	}
 
@@ -224,7 +224,7 @@ export default class Relayer {
 		let socketID = -1;
 		for (const id in this.clientSockets)
 			if (this.clientSockets[id] === clientWS) socketID = Number(id);
-		if (socketID < 0) util.logInfo(logHeader + `In valid socketID: ${socketID}`);
+		if (socketID < 0) util.logInfo(logHeader + `Invalid socketID: ${socketID}`);
 		return socketID;
 	}
 }

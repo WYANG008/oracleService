@@ -21,7 +21,7 @@ export default class Client {
 		if (this.uiSocketServer)
 			this.uiSocketServer.on('connection', uiWS => {
 				util.logInfo(logHeader + 'Connected');
-				console.log(uiWS);
+				// console.log(uiWS);
 				uiWS.on('message', msg => {
 					util.logInfo(logHeader + `MsgFromUI: ${JSON.stringify(msg)}`);
 					this.handleUIMessage(msg);
