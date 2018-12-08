@@ -113,6 +113,17 @@ export default class Web3Util {
 		});;
 	}
 
+	public async getStakedToken(address: string) {
+		return this.contractWrapper.contract.methods.totalStakedAmt(address).call();
+	}
+
+	public async getListedCommitters() {
+		const totalFeeders = await this.contractWrapper.contract.methods.totalFeeders().call();
+		console.log(totalFeeders);
+	}
+	// uint public totalFeeders;
+	// address[] feederLists;
+
 
 	// public web3PersonalSign(account: string, message: string): Promise<string> {
 	// 	if (this.wallet !== Wallet.MetaMask) return Promise.reject();
