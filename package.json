@@ -1,0 +1,60 @@
+{
+	"name": "israfel-relayer",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Israfel Relayer",
+	"author": "FinBook Pte Ltd",
+	"scripts": {
+		"test": "jest",
+		"tslint": "tslint -c tslint.json -p tsconfig.json src/**/*.ts{,x} --fix",
+		"relayer": "ts-node ./src/index relayer",
+		"pruneOrder": "ts-node ./src/index pruneOrder",
+		"orderWatcher": "ts-node ./src/index orderWatcher",
+		"orders": "ts-node ./src/index orders",
+		"orderBooks": "ts-node ./src/index orderBooks"
+	},
+	"jest": {
+		"testEnvironment": "node",
+		"roots": [
+			"<rootDir>/src"
+		],
+		"transform": {
+			"^.+\\.tsx?$": "ts-jest"
+		},
+		"testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
+		"moduleFileExtensions": [
+			"ts",
+			"tsx",
+			"js",
+			"jsx",
+			"json",
+			"node"
+		]
+	},
+	"devDependencies": {
+		"@types/ioredis": "^4.0.4",
+		"@types/jest": "^23.3.10",
+		"@types/ws": "^6.0.1",
+		"jest": "^23.6.0",
+		"pre-commit": "^1.2.2",
+		"ts-jest": "^23.10.5",
+		"tslint": "^5.11.0"
+	},
+	"dependencies": {
+		"0x.js": "^2.0.6",
+		"@0x/contract-addresses": "^2.0.0",
+		"@0x/types": "^1.3.0",
+		"@0x/web3-wrapper": "^3.1.6",
+		"@babel/polyfill": "^7.0.0",
+		"aws-sdk": "^2.366.0",
+		"ethers": "^4.0.15",
+		"ioredis": "^4.2.0",
+		"moment": "^2.22.2",
+		"ts-node": "^7.0.1",
+		"typescript": "^3.1.6",
+		"web3-eth": "^1.0.0-beta.36",
+		"web3-eth-accounts": "^1.0.0-beta.36",
+		"web3-eth-personal": "^1.0.0-beta.36",
+		"ws": "^6.1.2"
+	}
+}
