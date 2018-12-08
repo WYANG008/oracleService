@@ -3,13 +3,14 @@ import util from './util';
 import Web3Util from './Web3Util';
 import * as CST from '../common/constants';
 import {
-	// IContractStates, 
+	//  IContractStates, 
 	IOption } from '../common/types';
+// import { resolve } from 'dns';
 // const abiDecoder = require('abi-decoder');
 
 export default class ContractWrapper {
 	public web3Util: Web3Util;
-	public address: string
+	public address: string;
 	public abi: any[];
 	public events: string[] = [];
 	public contract: Contract;
@@ -17,7 +18,7 @@ export default class ContractWrapper {
 	constructor(option: IOption) {
 		const abiFile = require('../static/abi.json');
 		this.abi = abiFile.abi;
-		this.web3Util = new Web3Util(null, option.source, option.provider );
+		this.web3Util = new Web3Util(null, option.source, option.provider);
 		this.address = CST.CONTRACT_ADDR;
 		this.contract = this.web3Util.createContract(this.abi, this.address);
 	}
@@ -52,18 +53,24 @@ export default class ContractWrapper {
 			.catch(error => util.logInfo(error));
 	}
 
-	public async getStates() {
+	public async getStates(){
 		// const states = await this.contract.methods.getStates().call();
 		const promiseList = [
 			this.contract.methods.period().call(),
 			this.contract.methods.mingRatio().call(),
 			this.contract.methods.openWindowTimeInSecond().call(),
 			this.contract.methods.lastPriceTimeInSecond().call(),
-			this.contract.methods.inceptionTimeInSecond().call(),
+			this.contract.methods.inceptionTimeInSecond().call()
 		];
 
-		Promise.all(promiseList).then(res=>{
-			res.map(e=>console.log(e));
-		});
+		const results = await Promise.all(promiseList);
+		return {
+			period: results[0],
+			mingRatio: results[1],
+			openWindowTimeInSecond: results[2],
+			lastPriceTimeInSecond: results[3],
+			inceptionTimeInSecond: results[4]
+		}
+
 	}
 }
