@@ -18,24 +18,22 @@ const option: IOption = util.parseOptions(process.argv);
 if (!option.provider) {
 	const infura = require('./keys/infura.json');
 	if (option.source === CST.SRC_INFURA)
-		option.provider =
-			CST.PROVIDER_INFURA_KOVAN +
-			'/' +
-			infura.token;
+		option.provider = CST.PROVIDER_INFURA_KOVAN + '/' + infura.token;
 }
 
-
 const contractWrapper = new ContractWrapper(option);
-const web3Util = new Web3Util(null, option, contractWrapper);
+const web3Util = new Web3Util(null, option, '');
 
 const relayers: Dict<string, Relayer> = {};
 let client;
 switch (tool) {
 	case 'startRelayers':
-		for (const port of CST.RELAYER_PORTS) {
-			relayers[port] = new Relayer(Number(port));
-			setInterval(() => relayers[port].updatePrice(), 2 * 1000);
+		for (const relayerID of CST.RELAYER_PORTS) {
+			relayers[relayerID] = new Relayer(Number(relayerID));
+			setInterval(() => relayers[relayerID].updatePrice(), 3 * 1000);
+			setInterval(() => relayers[relayerID].commitPrice({} as any), 30 * 1000);
 		}
+
 		break;
 	case 'startClient':
 		client = new Client();

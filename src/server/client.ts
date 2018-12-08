@@ -1,3 +1,4 @@
+import moment from 'moment';
 import WebSocket from 'ws';
 import * as CST from '../common/constants';
 import { Dict, IRelayerInfo, IRelayerMessage, IStake } from '../common/types';
@@ -5,9 +6,7 @@ import { Dict, IRelayerInfo, IRelayerMessage, IStake } from '../common/types';
 const moduleName = 'Client';
 export default class Client {
 	public relayers: Dict<string, WebSocket> = {};
-	// public relayerPrices: Dict<string, IPrice> = {};
 	public relayersInfo: Dict<string, IRelayerInfo> = {};
-	// public userPK: string = '';
 	public uiSocketServer: WebSocket.Server | null = null;
 	public uiSocket: WebSocket | null = null;
 
@@ -15,13 +14,13 @@ export default class Client {
 
 	constructor() {
 		const logHeader = `[${moduleName}.Contructor]: `;
-		// this.userPK = userPK;
 		this.uiSocketServer = new WebSocket.Server({
 			port: CST.UI_SOCKET_PORT
 		});
 		if (this.uiSocketServer)
 			this.uiSocketServer.on('connection', uiWS => {
 				console.log(logHeader + 'Connected');
+				console.log(uiWS);
 				uiWS.on('message', msg => {
 					console.log(logHeader + `MsgFromUI: ${JSON.stringify(msg)}`);
 					this.handleUIMessage(msg);
@@ -37,11 +36,6 @@ export default class Client {
 			const relayerWSLink = `ws://localhost:${relayerID}`;
 			this.relayers[relayerID] = new WebSocket(relayerWSLink);
 			this.relayers[relayerID].on('open', () => {
-				// const message = {
-				// 	op: 'subscribePrice',
-				// 	data: {}
-				// };
-				// this.relayers[relayerID].send(JSON.stringify(message));
 				this.relayers[relayerID].on('message', msg => {
 					this.handleRelayerMessage(msg);
 				});
@@ -65,7 +59,6 @@ export default class Client {
 			default:
 				console.log(logHeader + `No such command: ${message.op} `);
 				break;
-			// this.uiSocket.send(JSON.stringify(msg.data));
 		}
 	}
 
@@ -118,22 +111,15 @@ export default class Client {
 				break;
 			case 'setAccount':
 				this.onUISetAccount(message.data);
-				// this.account = message.data.accountId
 				break;
 			default:
 				console.log(logHeader + `No such command: ${message.op}`);
 				break;
 		}
-		// switch (msg.op) {
-		// 	// case 'subscribe':
-		// 		// this.handleUISubscription();
-		// 	// this.uiSocket.send(JSON.stringify(msg.data));
-		// }
 	}
 
 	public onUISetAccount(data: { accountId: string }) {
 		this.account = data.accountId;
-		// const relayerID = stake.relayerID;
 		const message = { op: 'setAccount', data: { accountId: this.account } };
 		for (const relayerID in this.relayers)
 			this.relayers[relayerID].send(JSON.stringify(message));
@@ -144,13 +130,4 @@ export default class Client {
 		const message = { op: 'stake', data: stake };
 		this.relayers[relayerID].send(JSON.stringify(message));
 	}
-
-	// public handleUIStake(stake: IStake) {
-	// 	const relayerWS = this.relayers[stake.relayerID];
-	// 	const response = {
-	// 		op: 'stake',
-	// 		data: stake
-	// 	};
-	// 	relayerWS.send(JSON.stringify(response));
-	// }
 }
