@@ -58,7 +58,7 @@ switch (tool) {
 		const nextHour = Math.floor(
 			moment()
 				.utc()
-				.endOf('hours')
+				.endOf('hours').add(-20, 'minutes')
 				.valueOf() / 1000
 		);
 		contractWrapper.startOracleRaw(

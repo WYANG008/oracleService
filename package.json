@@ -16,7 +16,8 @@
 		"startClient": "ts-node ./src/index startClient",
 		"getStates": "ts-node ./src/index getStates",
 		"getStakes": "ts-node ./src/index getStakes",
-		"startOracle": "ts-node ./src/index startOracle"
+		"startOracle": "ts-node ./src/index startOracle",
+		"addList": "ts-node ./src/index addList"
 	},
 	"jest": {
 		"testEnvironment": "node",

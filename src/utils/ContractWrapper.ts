@@ -131,7 +131,7 @@ export default class ContractWrapper {
 		gasLimit: number,
 		nonce: number = -1
 	) {
-		util.logInfo(`the account ${address} is starting Oracle`);
+		util.logInfo(`the account ${address} is addWhiteListRaw`);
 		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
 		const abi = {
 			inputs: [
@@ -174,7 +174,7 @@ export default class ContractWrapper {
 		gasLimit: number,
 		nonce: number = -1
 	) {
-		util.logInfo(`the account ${address} is starting Oracle`);
+		util.logInfo(`the account ${address} is commitPriceRaw`);
 		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
 		const abi = {
 			"inputs": [
