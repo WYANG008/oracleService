@@ -2,7 +2,7 @@ import moment from 'moment';
 import WebSocket from 'ws';
 
 // import tradingUtil from './tradingUtil';
-import { Dict, IPrice, IStake } from '../common/types';
+import { Dict, IPrice, IRelayerMessage, IStake } from '../common/types';
 // import moment = require('moment');
 
 // import util from './util';
@@ -16,16 +16,15 @@ export default class Relayer {
 
 	public stakes: Dict<string, IStake> = {};
 
-	public clientsCount: number = 0;
-	public clients: Dict<number, WebSocket> = {};
+	public socketIDs: number = 0;
+	public clientSockets: Dict<number, WebSocket> = {};
+	public clientSocketToAccountMapping: Dict<string, string> = {};
 
-	public messages: string[] = [];
-	public currentPrice: IPrice = { relayerID: this.relayerID, price: this.relayerID, ts: 0 };
+	public currentPrice: IPrice = { price: this.relayerID, ts: 0 };
 
 	constructor(relayerID: number) {
 		const logHeader = `[${moduleName}.startServer]: `;
 		this.relayerID = relayerID;
-		this.currentPrice.relayerID = this.relayerID
 		this.wss = new WebSocket.Server({ port: this.relayerID });
 		console.log(logHeader + `Intialized at port ${relayerID}`);
 		if (this.wss)
@@ -36,13 +35,15 @@ export default class Relayer {
 				});
 				clientWS.on('close', () => {
 					console.log('connection close');
-					for (const clientID in this.clients)
-						if (this.clients[clientID] && this.clients[clientID] === clientWS)
-							delete this.clients[clientID];
+					for (const clientID in this.clientSockets)
+						if (
+							this.clientSockets[clientID] &&
+							this.clientSockets[clientID] === clientWS
+						)
+							delete this.clientSockets[clientID];
 				});
-
-				this.clients[this.clientsCount] = clientWS;
-				this.clientsCount++;
+				this.clientSockets[this.socketIDs] = clientWS;
+				this.socketIDs++;
 			});
 	}
 
@@ -54,6 +55,11 @@ export default class Relayer {
 			case 'stake':
 				// ws.send(`stake`);
 				this.onStake(clientWS, data as IStake);
+				break;
+			case 'setAccount':
+				this.onSetAccount(clientWS, data as {
+					accountID: string;
+				});
 				break;
 			// case 'subscribePrice':
 			// 	this.onSubscribePrice(clientWS, data as { userPK: string; sign: string });
@@ -69,40 +75,92 @@ export default class Relayer {
 		}
 	}
 
-	public async onStake(clientWS: WebSocket, stake: IStake) {
-		// const messgaeToPredict = this.composeMessage(args);
-		// ws = ws;
-		this.stakes[stake.userPK] = stake;
-		const response = { op: 'stake', result: 'successful', data: stake };
-		clientWS.send(JSON.stringify(response));
+	public async onSetAccount(clientWS: WebSocket, data: { accountID: string }) {
+		const logHeader = `[${moduleName}.onSetAccount]: `;
+		const socketID = this.findSocketID(clientWS);
+		if (socketID < 0) console.log(logHeader + `Invalid socketID: ${socketID}`);
+		else {
+			this.clientSocketToAccountMapping[socketID] = data.accountID;
+			console.log(
+				logHeader +
+					`[${this.relayerID}]: Socket ${socketID} is mapped to account ${data.accountID}`
+			);
+			const accountID = this.clientSocketToAccountMapping[socketID];
+			const message = {
+				op: 'setAccount',
+				status: 'successful',
+				data: this.getRelayerInfo(accountID)
+			};
+			this.clientSockets[socketID].send(message);
+		}
 	}
 
-	// public async onSubscribePrice(clientWS: WebSocket, data: { userPK: string }) {
-	// 	this.clients[this.clientsCount] = clientWS;
-	// 	this.clientsCount++;
-	// }
-
-	public startNewRound() {
-		this.messages = [];
-		this.stakes = {};
-		for (const clientWS of Object.values(this.clients)) clientWS.send('startNewRound');
+	public async onStake(clientWS: WebSocket, stake: IStake) {
+		const logHeader = `[${moduleName}.onSetAccount]: `;
+		const socketID = this.findSocketID(clientWS);
+		if (socketID < 0)
+			console.log(logHeader + `[${this.relayerID}]: Invalid socketID: ${socketID}`);
+		else {
+			this.stakes[stake.accountAddress] = stake;
+			console.log(
+				logHeader +
+					`[${this.relayerID}]: Account ${stake.accountAddress}` +
+					` stake updated:  ${JSON.stringify(this.stakes[stake.accountAddress])}`
+			);
+			const accountID = this.clientSocketToAccountMapping[socketID];
+			const message: IRelayerMessage = {
+				op: 'stake',
+				status: 'successful',
+				data: this.getRelayerInfo(accountID)
+			};
+			this.clientSockets[socketID].send(message);
+		}
 	}
 
 	public async updatePrice() {
 		const logHeader = `[${moduleName}.updatePrice]: `;
 		this.currentPrice = await this.fetchPrice();
-		console.log(logHeader + `[${this.relayerID}]: New price: ${this.currentPrice.price}`);
-		const response = { op: 'updatePrice', data: this.currentPrice };
-		for (const clientID in this.clients) {
-			const clientWS = this.clients[clientID];
-			console.log('send price to client')
-			clientWS.send(JSON.stringify(response));
-		}
+		console.log(logHeader + `[${this.relayerID}]: Update price: ${this.currentPrice.price}`);
+		for (const socketID in this.clientSockets)
+			if (this.clientSockets[socketID]) {
+				const accountID = this.clientSocketToAccountMapping[socketID];
+				const message = {
+					op: 'updatePrice',
+					status: 'successful',
+					data: this.getRelayerInfo(accountID)
+				};
+				this.clientSockets[socketID].send(JSON.stringify(message));
+			}
+	}
+
+	public getRelayerInfo(accountID: string) {
+		let stakedAmt = 0;
+		if (accountID && this.stakes[accountID]) stakedAmt = this.stakes[accountID].stakeAmt;
+		return Object.assign(this.currentPrice, {
+			relayerID: this.relayerID,
+			stakedAmt: stakedAmt,
+			accountID: !accountID ? '' : accountID
+		});
+	}
+
+	public startNewRound() {
+		this.stakes = {};
+		for (const clientWS of Object.values(this.clientSockets)) clientWS.send('startNewRound');
 	}
 
 	public async fetchPrice() {
 		this.currentPrice.price = this.relayerID * 100000 + (moment.utc().valueOf() % 1000);
+		this.currentPrice.ts = moment.utc().valueOf();
 		return this.currentPrice;
+	}
+
+	public findSocketID(clientWS: WebSocket) {
+		const logHeader = `[${moduleName}.findSocketID]: `;
+		let socketID = -1;
+		for (const id in this.clientSockets)
+			if (this.clientSockets[id] === clientWS) socketID = Number(id);
+		if (socketID < 0) console.log(logHeader + `In valid socketID: ${socketID}`);
+		return socketID;
 	}
 }
 

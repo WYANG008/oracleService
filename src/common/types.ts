@@ -5,16 +5,29 @@ export type Dict<keyType, valType> = keyType extends number
 export interface IPrice {
 	price: number;
 	ts: number;
-	relayerID: number;
+	// relayerID: number;
 }
 
 export interface IStake {
 	relayerID: string;
-	userPK: string;
+	// userPK: string;
+	accountAddress: string;
 	timestamp: number;
 	stakeAmt: number;
-	// sign: string;
+	sign: string;
 	// price: number;
+}
+
+export interface IRelayerInfo extends IPrice {
+	relayerID: number;
+	accountID: string;
+	stakedAmt: number;
+}
+
+export interface IRelayerMessage {
+	op: string;
+	status: string;
+	data: IRelayerInfo;
 }
 
 export interface IOption {

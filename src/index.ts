@@ -30,9 +30,9 @@ import Relayer from './server/relayer';
 
 // const options = util.parseOptions(process.argv);
 
-const start = async () => {};
+// const start = async () => {};
 
-start();
+// start();
 
 const tool = process.argv[2];
 
