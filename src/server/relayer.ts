@@ -58,7 +58,7 @@ export default class Relayer {
 				break;
 			case 'setAccount':
 				this.onSetAccount(clientWS, data as {
-					accountID: string;
+					accountId: string;
 				});
 				break;
 			// case 'subscribePrice':
@@ -75,21 +75,21 @@ export default class Relayer {
 		}
 	}
 
-	public async onSetAccount(clientWS: WebSocket, data: { accountID: string }) {
+	public async onSetAccount(clientWS: WebSocket, data: { accountId: string }) {
 		const logHeader = `[${moduleName}.onSetAccount]: `;
 		const socketID = this.findSocketID(clientWS);
 		if (socketID < 0) console.log(logHeader + `Invalid socketID: ${socketID}`);
 		else {
-			this.clientSocketToAccountMapping[socketID] = data.accountID;
+			this.clientSocketToAccountMapping[socketID] = data.accountId;
 			console.log(
 				logHeader +
-					`[${this.relayerID}]: Socket ${socketID} is mapped to account ${data.accountID}`
+					`[${this.relayerID}]: Socket ${socketID} is mapped to account ${data.accountId}`
 			);
-			const accountID = this.clientSocketToAccountMapping[socketID];
+			const accountId = this.clientSocketToAccountMapping[socketID];
 			const message = {
 				op: 'setAccount',
 				status: 'successful',
-				data: this.getRelayerInfo(accountID)
+				data: this.getRelayerInfo(accountId)
 			};
 			this.clientSockets[socketID].send(message);
 		}
@@ -107,11 +107,11 @@ export default class Relayer {
 					`[${this.relayerID}]: Account ${stake.accountAddress}` +
 					` stake updated:  ${JSON.stringify(this.stakes[stake.accountAddress])}`
 			);
-			const accountID = this.clientSocketToAccountMapping[socketID];
+			const accountId = this.clientSocketToAccountMapping[socketID];
 			const message: IRelayerMessage = {
 				op: 'stake',
 				status: 'successful',
-				data: this.getRelayerInfo(accountID)
+				data: this.getRelayerInfo(accountId)
 			};
 			this.clientSockets[socketID].send(message);
 		}
@@ -123,23 +123,23 @@ export default class Relayer {
 		console.log(logHeader + `[${this.relayerID}]: Update price: ${this.currentPrice.price}`);
 		for (const socketID in this.clientSockets)
 			if (this.clientSockets[socketID]) {
-				const accountID = this.clientSocketToAccountMapping[socketID];
+				const accountId = this.clientSocketToAccountMapping[socketID];
 				const message = {
 					op: 'updatePrice',
 					status: 'successful',
-					data: this.getRelayerInfo(accountID)
+					data: this.getRelayerInfo(accountId)
 				};
 				this.clientSockets[socketID].send(JSON.stringify(message));
 			}
 	}
 
-	public getRelayerInfo(accountID: string) {
+	public getRelayerInfo(accountId: string) {
 		let stakedAmt = 0;
-		if (accountID && this.stakes[accountID]) stakedAmt = this.stakes[accountID].stakeAmt;
+		if (accountId && this.stakes[accountId]) stakedAmt = this.stakes[accountId].stakeAmt;
 		return Object.assign(this.currentPrice, {
 			relayerID: this.relayerID,
 			stakedAmt: stakedAmt,
-			accountID: !accountID ? '' : accountID
+			accountId: !accountId ? '' : accountId
 		});
 	}
 

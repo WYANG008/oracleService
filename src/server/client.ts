@@ -72,15 +72,15 @@ export default class Client {
 	public onRelayerReplySetAccount(message: IRelayerMessage) {
 		const logHeader = `[${moduleName}.onRelayerSetAccount]: `;
 		const data = message.data;
-		if (this.account !== data.accountID) {
+		if (this.account !== data.accountId) {
 			console.log(
 				logHeader +
 					`Error: Client Account: ${this.account} not equal Relayer Account ${
-						data.accountID
+						data.accountId
 					}`
 			);
 			console.log(logHeader + `Resending setAccount to relayer`);
-			this.onUISetAccount({ accountID: this.account });
+			this.onUISetAccount({ accountId: this.account });
 		} else {
 			console.log(logHeader + `setAccount successful`);
 			this.relayersInfo[data.relayerID] = data;
@@ -118,7 +118,7 @@ export default class Client {
 				break;
 			case 'setAccount':
 				this.onUISetAccount(message.data);
-				// this.account = message.data.accountID
+				// this.account = message.data.accountId
 				break;
 			default:
 				console.log(logHeader + `No such command: ${message.op}`);
@@ -131,10 +131,10 @@ export default class Client {
 		// }
 	}
 
-	public onUISetAccount(data: { accountID: string }) {
-		this.account = data.accountID;
+	public onUISetAccount(data: { accountId: string }) {
+		this.account = data.accountId;
 		// const relayerID = stake.relayerID;
-		const message = { op: 'setAccount', data: { accountID: this.account } };
+		const message = { op: 'setAccount', data: { accountId: this.account } };
 		for (const relayerID in this.relayers)
 			this.relayers[relayerID].send(JSON.stringify(message));
 	}

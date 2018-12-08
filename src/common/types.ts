@@ -20,7 +20,7 @@ export interface IStake {
 
 export interface IRelayerInfo extends IPrice {
 	relayerID: number;
-	accountID: string;
+	accountId: string;
 	stakedAmt: number;
 }
 
