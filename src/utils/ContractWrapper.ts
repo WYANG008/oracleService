@@ -4,7 +4,8 @@ import util from './util';
 import * as CST from '../common/constants';
 import {
 	//  IContractStates,
-	IOption
+	IOption,
+	Signature
 } from '../common/types';
 import Web3 from 'web3';
 // import { resolve } from 'dns';
@@ -89,7 +90,6 @@ export default class ContractWrapper {
 		address: string,
 		privateKey: string,
 		startTime: number,
-		// whiteList: string[],
 		gasPrice: number,
 		gasLimit: number,
 		nonce: number = -1
@@ -149,6 +149,83 @@ export default class ContractWrapper {
 			]
 		};
 		const input = [addr];
+
+		const command = this.generateTxString(abi, input);
+		console.log(command);
+		await this.sendTransactionRaw(
+			address,
+			privateKey,
+			this.address,
+			0,
+			gasPrice,
+			gasLimit,
+			nonce,
+			command
+		);
+	}
+
+	public async commitPriceRaw(
+		address: string,
+		privateKey: string,
+		priceInWei: number,
+		timeInSecond: number,
+		signatures: Signature[],
+		gasPrice: number,
+		gasLimit: number,
+		nonce: number = -1
+	) {
+		util.logInfo(`the account ${address} is starting Oracle`);
+		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
+		const abi = {
+			"inputs": [
+				{
+				  "name": "priceInWei",
+				  "type": "uint256"
+				},
+				{
+				  "name": "timeInSecond",
+				  "type": "uint256"
+				},
+				{
+				  "components": [
+					{
+					  "name": "addr",
+					  "type": "address"
+					},
+					{
+					  "name": "timeInSecond",
+					  "type": "uint256"
+					},
+					{
+					  "name": "stakes",
+					  "type": "uint256"
+					},
+					{
+					  "name": "v",
+					  "type": "uint8"
+					},
+					{
+					  "name": "r",
+					  "type": "bytes32"
+					},
+					{
+					  "name": "s",
+					  "type": "bytes32"
+					}
+				  ],
+				  "name": "delegatedStakes",
+				  "type": "tuple[3]"
+				}
+			  ],
+			  "name": "commitPrice",
+			  "outputs": [
+				{
+				  "name": "success",
+				  "type": "bool"
+				}
+			  ]
+		};
+		const input = [priceInWei, timeInSecond, signatures];
 
 		const command = this.generateTxString(abi, input);
 		console.log(command);
