@@ -37,13 +37,7 @@ class Util {
 	}
 
 	public defaultOption: IOption = {
-		live: false,
-		token: 'aETH',
-		amount: 1,
-		maker: 0,
-		spender: 1,
-		debug: false,
-		server: false
+		source: 'infura'
 	};
 
 	public getUTCNowTimestamp() {
@@ -52,23 +46,11 @@ class Util {
 
 	public parseOptions(argv: string[]): IOption {
 		const option: IOption = this.defaultOption;
-		option.live = argv.includes('live');
-		option.server = argv.includes('server');
-		option.debug = argv.includes('debug');
 		for (let i = 3; i < argv.length; i++) {
 			const args = argv[i].split('=');
 			switch (args[0]) {
-				case 'token':
-					option.token = args[1] || option.token;
-					break;
-				case 'amount':
-					option.amount = Number(args[1]) || option.amount;
-					break;
-				case 'maker':
-					option.maker = Number(args[1]) || option.maker;
-					break;
-				case 'spender':
-					option.spender = Number(args[1]) || option.spender;
+				case 'source':
+					option.source = args[1] || option.source;
 					break;
 				default:
 					break;

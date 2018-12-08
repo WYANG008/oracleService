@@ -15,3 +15,7 @@ export interface IStake {
 	sign: string;
 	// price: number;
 }
+
+export interface IOption{
+	source: string;
+}
