@@ -37,7 +37,8 @@ class Util {
 	}
 
 	public defaultOption: IOption = {
-		source: 'infura'
+		source: 'infura',
+		provider: ''
 	};
 
 	public getUTCNowTimestamp() {
@@ -51,6 +52,9 @@ class Util {
 			switch (args[0]) {
 				case 'source':
 					option.source = args[1] || option.source;
+					break;
+				case 'provider':
+					option.provider = args[1] || option.provider;
 					break;
 				default:
 					break;

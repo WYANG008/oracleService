@@ -11,6 +11,7 @@ Array [
 
 exports[`parseOptions 1`] = `
 Object {
+  "provider": "",
   "source": "infura",
 }
 `;

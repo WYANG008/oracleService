@@ -1,14 +1,16 @@
 // fix for @ledgerhq/hw-transport-u2f 4.28.0
 import '@babel/polyfill';
 import Web3 from 'web3';
-import { Signature } from 'web3/types';
+import {Contract, Signature } from 'web3/types';
+// import { , EventLog } from 'web3/types';
 // import * as CST from '../common/constants';
-// import util from './util';
+import util from './util';
 
 // const Web3Eth = require('web3-eth');
 // const Web3Accounts = require('web3-eth-accounts');
 // const Web3Personal = require('web3-eth-personal');
 // const Web3Utils = require('web3-utils');
+const Tx = require('ethereumjs-tx');
 
 export enum Wallet {
 	None,
@@ -49,6 +51,10 @@ export default class Web3Util {
 		// this.Web3Personal = new Web3Personal(providerEngine);
 	}
 
+	public createContract(abi: any[], address: string): Contract {
+		return new this.web3.eth.Contract(abi, address);
+	}
+
 
 	public getGasPrice() {
 		return this.web3Eth.getGasPrice();
@@ -60,6 +66,35 @@ export default class Web3Util {
 
 	public async recover(message: string, v:string, r: string, s: string) {
 		return this.web3.eth.accounts.recover(message, v, r, s);
+	}
+
+	public signTx(rawTx: object, privateKey: string): string {
+		try {
+			const tx = new Tx(rawTx);
+			tx.sign(new Buffer(privateKey, 'hex'));
+			return tx.serialize().toString('hex');
+		} catch (err) {
+			util.logError(err);
+			return '';
+		}
+	}
+
+	public createTxCommand(
+		nonce: number,
+		gasPrice: number,
+		gasLimit: number,
+		toAddr: string,
+		amount: number,
+		data: string
+	) {
+		return {
+			nonce, // web3.utils.toHex(nonce), //nonce,
+			gasPrice: this.web3.utils.toHex(gasPrice),
+			gasLimit: this.web3.utils.toHex(gasLimit),
+			to: toAddr,
+			value: this.web3.utils.toHex(this.web3.utils.toWei(amount.toString(), 'ether')),
+			data
+		};
 	}
 
 
