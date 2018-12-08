@@ -1,5 +1,6 @@
 // fix for @ledgerhq/hw-transport-u2f 4.28.0
 import '@babel/polyfill';
+import moment from 'moment';
 import * as CST from './common/constants';
 import { Dict, IOption } from './common/types';
 
@@ -22,10 +23,12 @@ if (!option.provider) {
 }
 
 const contractWrapper = new ContractWrapper(option);
-const web3Util = new Web3Util(null, option, '');
+const web3Util = new Web3Util(null, option, contractWrapper);
 
 const relayers: Dict<string, Relayer> = {};
 let client;
+
+const kovanManagerAccount = require('./keys/kovanManagerAccount.json');
 switch (tool) {
 	case 'startRelayers':
 		for (const relayerID of CST.RELAYER_PORTS) {
@@ -33,7 +36,6 @@ switch (tool) {
 			setInterval(() => relayers[relayerID].updatePrice(), 3 * 1000);
 			setInterval(() => relayers[relayerID].commitPrice({} as any), 30 * 1000);
 		}
-
 		break;
 	case 'startClient':
 		client = new Client();
@@ -41,6 +43,36 @@ switch (tool) {
 		break;
 	case 'getStates':
 		web3Util.getStates();
+		break;
+	case 'getStakes':
+		web3Util.getStakedToken('0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A');
+		break;
+	case 'startOracle':
+		
+		const nextHour = Math.floor(
+			moment()
+				.utc()
+				.endOf('hours')
+				.valueOf() / 1000
+		);
+		contractWrapper.startOracleRaw(
+			kovanManagerAccount.address,
+			kovanManagerAccount.privateKey,
+			nextHour,
+			option.gasPrice || 2000000000,
+			option.gasLimit || 2000000
+		);
+		break;
+	case 'addList':
+			
+		contractWrapper.addWhiteListRaw(
+			kovanManagerAccount.address,
+			kovanManagerAccount.privateKey,
+			option.address,
+			option.gasPrice || 2000000000,
+			option.gasLimit || 2000000
+
+		);
 		break;
 	default:
 		break;

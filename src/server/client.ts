@@ -1,4 +1,4 @@
-import moment from 'moment';
+// import moment from 'moment';
 import WebSocket from 'ws';
 import * as CST from '../common/constants';
 import { Dict, IRelayerInfo, IRelayerMessage, IStake } from '../common/types';

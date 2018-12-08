@@ -11,6 +11,9 @@ Array [
 
 exports[`parseOptions 1`] = `
 Object {
+  "address": "",
+  "gasLimit": 0,
+  "gasPrice": 0,
   "provider": "",
   "source": "infura",
 }

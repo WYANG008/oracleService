@@ -38,7 +38,10 @@ class Util {
 
 	public defaultOption: IOption = {
 		source: 'infura',
-		provider: ''
+		provider: '',
+		gasPrice: 0,
+		gasLimit: 0,
+		address: ''
 	};
 
 	public getUTCNowTimestamp() {
@@ -55,6 +58,15 @@ class Util {
 					break;
 				case 'provider':
 					option.provider = args[1] || option.provider;
+					break;
+				case 'gasPrice':
+					option.gasPrice = Number(args[1])|| option.gasPrice;
+					break;
+				case 'gasLimit':
+					option.gasLimit = Number(args[1])|| option.gasLimit;
+					break;
+				case 'address':
+					option.address = args[1] || option.address;
 					break;
 				default:
 					break;

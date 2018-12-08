@@ -33,6 +33,9 @@ export interface IRelayerMessage {
 export interface IOption {
 	source: string;
 	provider: string;
+	gasPrice:number;
+	gasLimit: number;
+	address: string;
 }
 
 export interface IContractStates{
@@ -41,5 +44,4 @@ export interface IContractStates{
 	openWindowTimeInSecond:number;
 	lastPriceTimeInSecond: number;
 	inceptionTimeInSecond: number;
-
 }

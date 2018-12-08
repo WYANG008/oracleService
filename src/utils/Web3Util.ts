@@ -106,16 +106,14 @@ export default class Web3Util {
 		});;
 	}
 
-	// public async getStakedToken(address: string) {
-	// 	console.log(address);
-	// 	const res = await this.contractWrapper.contract.methods.period().call();
-	// 	console.log(res);
-	// }
+	public async getStakedToken(address: string) {
+		return this.contractWrapper.contract.methods.totalStakedAmt(address).call();
+	}
 
-	// public async getListedCommitters() {
-	// 	const totalFeeders = await this.contractWrapper.contract.methods.totalFeeders().call();
-	// 	console.log(totalFeeders);
-	// }
+	public async getListedCommitters() {
+		const totalFeeders = await this.contractWrapper.contract.methods.totalFeeders().call();
+		console.log(totalFeeders);
+	}
 	// uint public totalFeeders;
 	// address[] feederLists;
 

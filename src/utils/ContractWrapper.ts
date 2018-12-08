@@ -3,8 +3,9 @@ import util from './util';
 // import Web3Util from './Web3Util';
 import * as CST from '../common/constants';
 import {
-	//  IContractStates, 
-	IOption } from '../common/types';
+	//  IContractStates,
+	IOption
+} from '../common/types';
 import Web3 from 'web3';
 // import { resolve } from 'dns';
 // const abiDecoder = require('abi-decoder');
@@ -19,19 +20,14 @@ export default class ContractWrapper {
 	public contract: Contract;
 
 	constructor(option: IOption) {
-		console.log('start constructor');
 		const abiFile = require('../static/abi.json');
 		this.abi = abiFile.abi;
 		// this.web3Util = new Web3Util(null, option);
 		this.address = CST.CONTRACT_ADDR;
-		const providerEngine = new Web3.providers.HttpProvider(option.provider)
-		this.web3 = new Web3(
-			providerEngine
-		);
+		const providerEngine = new Web3.providers.HttpProvider(option.provider);
+		this.web3 = new Web3(providerEngine);
 		// this.web3 = new Web3(option.provider);
 		this.contract = new this.web3.eth.Contract(this.abi, this.address);
-	
-		console.log(option.provider);
 	}
 
 	public async sendTransactionRaw(
@@ -49,26 +45,22 @@ export default class ContractWrapper {
 		this.web3.eth
 			.sendSignedTransaction(
 				this.signTx(
-					this.createTxCommand(
-						nonce,
-						gasPrice,
-						gasLimit,
-						contractAddr,
-						value,
-						command
-					),
+					this.createTxCommand(nonce, gasPrice, gasLimit, contractAddr, value, command),
 					privateKey
 				)
 			)
 			.then(receipt => util.logInfo(receipt))
-			.catch(error => util.logInfo(error));
+			.catch(error => {
+				console.log(error);
+			});
 	}
 
 	public signTx(rawTx: object, privateKey: string): string {
 		try {
 			const tx = new Tx(rawTx);
 			tx.sign(new Buffer(privateKey, 'hex'));
-			return tx.serialize().toString('hex');
+			const res = '0x' + tx.serialize().toString('hex');
+			return res;
 		} catch (err) {
 			util.logError(err);
 			return '';
@@ -93,5 +85,86 @@ export default class ContractWrapper {
 		};
 	}
 
-	
+	public async startOracleRaw(
+		address: string,
+		privateKey: string,
+		startTime: number,
+		// whiteList: string[],
+		gasPrice: number,
+		gasLimit: number,
+		nonce: number = -1
+	) {
+		console.log(startTime);
+		util.logInfo(`the account ${address} is starting Oracle`);
+		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
+		const abi = {
+			type: 'function',
+			inputs: [
+				{
+					name: 'startTime',
+					type: 'uint256'
+				}
+			],
+			name: 'startOracle'
+		};
+		const input = [startTime];
+
+		const command = this.generateTxString(abi, input);
+		console.log(command);
+		await this.sendTransactionRaw(
+			address,
+			privateKey,
+			this.address,
+			0,
+			gasPrice,
+			gasLimit,
+			nonce,
+			command
+		);
+	}
+
+	public async addWhiteListRaw(
+		address: string,
+		privateKey: string,
+		addr: string,
+		gasPrice: number,
+		gasLimit: number,
+		nonce: number = -1
+	) {
+		util.logInfo(`the account ${address} is starting Oracle`);
+		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
+		const abi = {
+			inputs: [
+				{
+					name: 'addr',
+					type: 'address'
+				}
+			],
+			name: 'addWhiteList',
+			outputs: [
+				{
+					name: '',
+					type: 'bool'
+				}
+			]
+		};
+		const input = [addr];
+
+		const command = this.generateTxString(abi, input);
+		console.log(command);
+		await this.sendTransactionRaw(
+			address,
+			privateKey,
+			this.address,
+			0,
+			gasPrice,
+			gasLimit,
+			nonce,
+			command
+		);
+	}
+
+	public generateTxString(abi: object, input: any[]): string {
+		return this.web3.eth.abi.encodeFunctionCall(abi, input);
+	}
 }
