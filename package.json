@@ -11,7 +11,9 @@
 		"pruneOrder": "ts-node ./src/index pruneOrder",
 		"orderWatcher": "ts-node ./src/index orderWatcher",
 		"orders": "ts-node ./src/index orders",
-		"orderBooks": "ts-node ./src/index orderBooks"
+		"orderBooks": "ts-node ./src/index orderBooks",
+		"startRelayers": "ts-node ./src/index startRelayers",
+		"startClient": "ts-node ./src/index startClient"
 	},
 	"jest": {
 		"testEnvironment": "node",
