@@ -8,6 +8,7 @@ import {
 // import { resolve } from 'dns';
 // const abiDecoder = require('abi-decoder');
 
+
 export default class ContractWrapper {
 	public web3Util: Web3Util;
 	public address: string;
@@ -18,7 +19,7 @@ export default class ContractWrapper {
 	constructor(option: IOption) {
 		const abiFile = require('../static/abi.json');
 		this.abi = abiFile.abi;
-		this.web3Util = new Web3Util(null, option.source, option.provider);
+		this.web3Util = new Web3Util(null, option, option.provider);
 		this.address = CST.CONTRACT_ADDR;
 		this.contract = this.web3Util.createContract(this.abi, this.address);
 	}
@@ -73,4 +74,5 @@ export default class ContractWrapper {
 		}
 
 	}
+
 }

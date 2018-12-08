@@ -2,6 +2,8 @@
 import '@babel/polyfill';
 import Web3 from 'web3';
 import {Contract, Signature } from 'web3/types';
+import ContractWrapper from './ContractWrapper';
+import { IOption } from '../common/types';
 // import { , EventLog } from 'web3/types';
 // import * as CST from '../common/constants';
 import util from './util';
@@ -21,13 +23,15 @@ export enum Wallet {
 
 export default class Web3Util {
 	public web3: Web3;
+	public contractWrapper: ContractWrapper;
 	public wallet: Wallet = Wallet.None;
 	public accountIndex: number = 0;
 	public provider: string;
 	public web3Eth: any = null;
 	public Web3Personal: any = null;
 
-	constructor(window: any, source: string, provider: string) {
+	constructor(window: any, option: IOption, provider: string) {
+		this.contractWrapper = new ContractWrapper(option);
 
 		this.provider = provider;
 		let providerEngine;
@@ -38,7 +42,7 @@ export default class Web3Util {
 			this.web3 = new Web3(new Web3.providers.HttpProvider(provider));
 			this.wallet = Wallet.None;
 		} else {
-			providerEngine = source
+			providerEngine = option.source
 			? new Web3.providers.HttpProvider(provider)
 			: new Web3.providers.WebsocketProvider(provider)
 			this.web3 = new Web3(
@@ -95,6 +99,12 @@ export default class Web3Util {
 			value: this.web3.utils.toHex(this.web3.utils.toWei(amount.toString(), 'ether')),
 			data
 		};
+	}
+
+	public async stake(address: string, amtInWei: number) {
+		return this.contractWrapper.contract.methods.stake(amtInWei).send({
+			from: address
+		});;
 	}
 
 
