@@ -75,7 +75,8 @@ export default class Web3Util {
 			this.contractWrapper.contract.methods.mingRatio().call(),
 			this.contractWrapper.contract.methods.openWindowTimeInSecond().call(),
 			this.contractWrapper.contract.methods.lastPriceTimeInSecond().call(),
-			this.contractWrapper.contract.methods.inceptionTimeInSecond().call()
+			this.contractWrapper.contract.methods.inceptionTimeInSecond().call(),
+			this.contractWrapper.contract.methods.lastPrice().call()
 			// this.contractWrapper.contract.
 		];
 
@@ -86,7 +87,8 @@ export default class Web3Util {
 			mingRatio: results[1],
 			openWindowTimeInSecond: results[2],
 			lastPriceTimeInSecond: results[3],
-			inceptionTimeInSecond: results[4]
+			inceptionTimeInSecond: results[4],
+			lastPrice: results[5]
 		};
 	}
 
