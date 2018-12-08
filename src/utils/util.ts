@@ -1,9 +1,30 @@
 import moment, { DurationInputArg2 } from 'moment';
+import request from 'request';
 import WebSocket from 'ws';
 import * as CST from '../common/constants';
 import { IOption } from '../common/types';
 
 class Util {
+	public get(url: string, headerOthers?: object): Promise<any> {
+		return new Promise((resolve, reject) =>
+			request(
+				{
+					url,
+					headers: Object.assign(
+						{
+							'user-agent': 'node.js'
+						},
+						headerOthers || {}
+					)
+				},
+				(error: any, res: any, body: any) => {
+					if (error) reject(error);
+					else if (res.statusCode === 200) resolve(body);
+					else reject('Error status ' + res.statusCode + ' ' + res.statusMessage);
+				}
+			)
+		);
+	}
 	public logLevel: string = CST.LOG_INFO;
 
 	public logInfo(text: any): void {
@@ -43,7 +64,6 @@ class Util {
 		gasLimit: 0,
 		address: ''
 	};
-
 	public getUTCNowTimestamp() {
 		return moment().valueOf();
 	}
@@ -60,10 +80,10 @@ class Util {
 					option.provider = args[1] || option.provider;
 					break;
 				case 'gasPrice':
-					option.gasPrice = Number(args[1])|| option.gasPrice;
+					option.gasPrice = Number(args[1]) || option.gasPrice;
 					break;
 				case 'gasLimit':
-					option.gasLimit = Number(args[1])|| option.gasLimit;
+					option.gasLimit = Number(args[1]) || option.gasLimit;
 					break;
 				case 'address':
 					option.address = args[1] || option.address;

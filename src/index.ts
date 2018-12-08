@@ -8,9 +8,12 @@ import { Dict, IOption } from './common/types';
 // import relayerServer from './server/relayerServer';
 import Client from './server/client';
 import Relayer from './server/relayer';
-import util from './utils/util';
 import ContractWrapper from './utils/ContractWrapper';
+
+import util from './utils/util';
 import Web3Util from './utils/Web3Util';
+
+const schedule = require('node-schedule');
 
 const tool = process.argv[2];
 util.logInfo('tool ' + tool);
@@ -34,8 +37,12 @@ switch (tool) {
 		for (const relayerID of CST.RELAYER_PORTS) {
 			relayers[relayerID] = new Relayer(Number(relayerID));
 			setInterval(() => relayers[relayerID].updatePrice(), 3 * 1000);
-			setInterval(() => relayers[relayerID].commitPrice({} as any), 30 * 1000);
+			schedule.scheduleJob('*/5 * * * * * ', () => {
+				relayers[relayerID].commitPrice({} as any);
+			});
+			// setInterval(() => relayers[relayerID].commitPrice({} as any), 30 * 1000);
 		}
+
 		break;
 	case 'startClient':
 		client = new Client();
@@ -48,7 +55,6 @@ switch (tool) {
 		web3Util.getStakedToken('0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A');
 		break;
 	case 'startOracle':
-		
 		const nextHour = Math.floor(
 			moment()
 				.utc()
@@ -64,14 +70,12 @@ switch (tool) {
 		);
 		break;
 	case 'addList':
-			
 		contractWrapper.addWhiteListRaw(
 			kovanManagerAccount.address,
 			kovanManagerAccount.privateKey,
 			option.address,
 			option.gasPrice || 2000000000,
 			option.gasLimit || 2000000
-
 		);
 		break;
 	default:

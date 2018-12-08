@@ -8,6 +8,11 @@ import ContractWrapper from '../utils/ContractWrapper';
 import util from '../utils/util';
 
 const moduleName = 'Relayer';
+const urls = {
+	8001: 'https://api.hitbtc.com/api/2/public/ticker/ETHUSD',
+	8002: 'https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT',
+	8003: 'https://api.bitfinex.com/v2/ticker/tBTCUSD'
+};
 export default class Relayer {
 	public wss: WebSocket.Server | null = null;
 	public relayerID: number = 0;
@@ -168,6 +173,21 @@ export default class Relayer {
 	}
 
 	public async fetchPrice() {
+		const url = (urls as any)[this.relayerID];
+		const data = await util.get(url);
+		switch (this.relayerID) {
+			case 8001:
+				this.currentPrice.price = JSON.parse(data).last;
+				break;
+			case 8002:
+				this.currentPrice.price = JSON.parse(data).price;
+				break;
+			case 8003:
+				this.currentPrice.price = JSON.parse(data)[6];
+				break;
+			default:
+				break;
+		}
 		this.currentPrice.price = this.relayerID * 100000 + (moment.utc().valueOf() % 1000);
 		this.currentPrice.ts = moment.utc().valueOf();
 		return this.currentPrice;
