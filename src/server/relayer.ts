@@ -1,7 +1,7 @@
 import moment from 'moment';
 import WebSocket from 'ws';
 
-import { Dict, IPrice, IRelayerMessage, IStake } from '../common/types';
+import { Dict, IOption, IPrice, IRelayerMessage, IStake } from '../common/types';
 import relayerKeys from '../keys/relayerKeys.json';
 import ContractWrapper from '../utils/ContractWrapper';
 
@@ -9,9 +9,9 @@ import util from '../utils/util';
 
 const moduleName = 'Relayer';
 const urls = {
-	8001: 'https://api.hitbtc.com/api/2/public/ticker/ETHUSD',
-	8002: 'https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT',
-	8003: 'https://api.bitfinex.com/v2/ticker/tBTCUSD'
+	8000: 'https://api.hitbtc.com/api/2/public/ticker/ETHUSD',
+	8001: 'https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT',
+	8002: 'https://api.bitfinex.com/v2/ticker/tETHUSD'
 };
 export default class Relayer {
 	public wss: WebSocket.Server | null = null;
@@ -25,17 +25,22 @@ export default class Relayer {
 	private sk: string = '';
 	private address: string = '';
 
-	public currentPrice: IPrice = { price: this.relayerID, ts: 0 };
+	public currentPrice: IPrice = { price: this.relayerID, ts: moment.utc().valueOf() };
 
-	public contractWrapper = new ContractWrapper({} as any);
+	public contractWrapper: any;
 
-	constructor(relayerID: number) {
+	constructor(relayerID: number, option: IOption) {
 		const logHeader = `[${moduleName}.startServer]: `;
+		this.contractWrapper = new ContractWrapper(option);
+		// console.log(this.contractWrapper);
 		this.relayerID = relayerID;
 		this.sk = (relayerKeys as Dict<string, any>)[this.relayerID].sk;
-		this.address = (relayerKeys as Dict<string, any>)[this.relayerID].address;
+		this.address = (relayerKeys as Dict<string, any>)[this.relayerID].addr;
+		// console.log(JSON.stringify((relayerKeys as Dict<string, any>)[this.relayerID]));
+		// console.log(this.relayerID)
+		// console.log(this.address)
 		this.wss = new WebSocket.Server({ port: this.relayerID });
-		console.log(logHeader + `Intialized at port ${relayerID}`);
+		util.logInfo(logHeader + `Intialized at port ${relayerID}`);
 		if (this.wss)
 			this.wss.on('connection', clientWS => {
 				console.log('New Connection');
@@ -86,7 +91,7 @@ export default class Relayer {
 	public async onSetAccount(clientWS: WebSocket, data: { accountId: string }) {
 		const logHeader = `[${moduleName}.onSetAccount]: `;
 		const socketID = this.findSocketID(clientWS);
-		if (socketID < 0) console.log(logHeader + `Invalid socketID: ${socketID}`);
+		if (socketID < 0) util.logInfo(logHeader + `Invalid socketID: ${socketID}`);
 		else {
 			this.clientSocketToAccountMapping[socketID] = data.accountId;
 			console.log(
@@ -107,7 +112,7 @@ export default class Relayer {
 		const logHeader = `[${moduleName}.onSetAccount]: `;
 		const socketID = this.findSocketID(clientWS);
 		if (socketID < 0)
-			console.log(logHeader + `[${this.relayerID}]: Invalid socketID: ${socketID}`);
+			util.logInfo(logHeader + `[${this.relayerID}]: Invalid socketID: ${socketID}`);
 		else {
 			this.stakes[stake.accountAddress] = stake;
 			console.log(
@@ -128,7 +133,7 @@ export default class Relayer {
 	public async updatePrice() {
 		const logHeader = `[${moduleName}.updatePrice]: `;
 		this.currentPrice = await this.fetchPrice();
-		console.log(logHeader + `[${this.relayerID}]: Update price: ${this.currentPrice.price}`);
+		util.logInfo(logHeader + `[${this.relayerID}]: Update price: ${this.currentPrice.price}`);
 		for (const socketID in this.clientSockets)
 			if (this.clientSockets[socketID]) {
 				const accountId = this.clientSocketToAccountMapping[socketID];
@@ -141,19 +146,39 @@ export default class Relayer {
 			}
 	}
 
-	public async commitPrice(option: any) {
+	public async commitPrice(option: IOption) {
+		const logHeader = `[${moduleName}.commitPrice]: `;
+		util.logInfo(logHeader + JSON.stringify(option));
 		this.sk = this.sk;
-		const contractWrapper2 = this.contractWrapper as any;
-		// const currentPrice = await calculator.getPriceFix(option.base, option.quote);
-		const gasPrice = (await contractWrapper2.getGasPrice()) || option.gasPrice;
+
+		// const gasPrice = (await this.contractWrapper.web3.eth.getGasPrice()) || option.gasPrice;
+		const gasPrice = 5;
 		util.logInfo('gasPrice price ' + gasPrice + ' gasLimit is ' + option.gasLimit);
-		return contractWrapper2.commitPrice(
+		const paras = [
 			this.address,
 			this.sk,
-			this.currentPrice.price,
-			Math.floor(this.currentPrice.ts / 1000),
-			gasPrice,
-			option.gasLimit
+			this.currentPrice.price * 1e18,
+			this.currentPrice.ts,
+			option.gasPrice || 8000000000,
+			option.gasLimit || 2000000
+		];
+		console.log(JSON.stringify(paras, null, 4));
+		// return this.contractWrapper.commitPriceRaw(
+		// 	this.address,
+		// 	this.sk,
+		// 	this.currentPrice.price * 1e18,
+		// 	Math.floor(this.currentPrice.ts / 1000),
+		// 	[],
+		// 	gasPrice,
+		// 	option.gasLimit
+		// );
+		return this.contractWrapper.commitPriceRaw(
+			this.address,
+			this.sk,
+			this.currentPrice.price * 1e18,
+			this.currentPrice.ts,
+			option.gasPrice || 8000000000,
+			option.gasLimit || 2000000
 		);
 	}
 
@@ -174,21 +199,22 @@ export default class Relayer {
 
 	public async fetchPrice() {
 		const url = (urls as any)[this.relayerID];
+		console.log(url);
 		const data = await util.get(url);
 		switch (this.relayerID) {
-			case 8001:
+			case 8000:
 				this.currentPrice.price = JSON.parse(data).last;
 				break;
-			case 8002:
+			case 8001:
 				this.currentPrice.price = JSON.parse(data).price;
 				break;
-			case 8003:
+			case 8002:
 				this.currentPrice.price = JSON.parse(data)[6];
 				break;
 			default:
 				break;
 		}
-		this.currentPrice.price = this.relayerID * 100000 + (moment.utc().valueOf() % 1000);
+		// this.currentPrice.price = this.relayerID * 100000 + (moment.utc().valueOf() % 1000);
 		this.currentPrice.ts = moment.utc().valueOf();
 		return this.currentPrice;
 	}
@@ -198,7 +224,7 @@ export default class Relayer {
 		let socketID = -1;
 		for (const id in this.clientSockets)
 			if (this.clientSockets[id] === clientWS) socketID = Number(id);
-		if (socketID < 0) console.log(logHeader + `In valid socketID: ${socketID}`);
+		if (socketID < 0) util.logInfo(logHeader + `In valid socketID: ${socketID}`);
 		return socketID;
 	}
 }

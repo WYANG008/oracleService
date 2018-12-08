@@ -131,6 +131,26 @@ class Util {
 
 		return dates;
 	}
+
+	public getPeriodStartTimestamp(
+		timestamp: number,
+		period: number,
+		numPeriodsOffset: number
+	): number {
+		return (
+			Math.max(Math.floor(timestamp / 60000 / period + numPeriodsOffset), 0) * 60000 * period
+		);
+	}
+
+	public getPeriodEndTimestamp(
+		timestamp: number,
+		period: number,
+		numPeriodsOffset: number
+	): number {
+		return (
+			Math.max(Math.ceil(timestamp / 60000 / period + numPeriodsOffset), 0) * 60000 * period
+		);
+	}
 }
 
 const util = new Util();

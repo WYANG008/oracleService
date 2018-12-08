@@ -1,5 +1,7 @@
+import Web3 from 'web3';
+
 import { Contract } from 'web3/types';
-import util from './util';
+
 // import Web3Util from './Web3Util';
 import * as CST from '../common/constants';
 import {
@@ -7,7 +9,7 @@ import {
 	IOption
 	// Signature
 } from '../common/types';
-import Web3 from 'web3';
+import util from './util';
 // import { resolve } from 'dns';
 // const abiDecoder = require('abi-decoder');
 const Tx = require('ethereumjs-tx');
@@ -221,7 +223,19 @@ export default class ContractWrapper {
 				}
 			]
 		};
-		const input = [priceInWei, timeInSecond, ['0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A'], [[1, 1]], ['0x1c'], [['0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A', '0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A']]];
+		const input = [
+			priceInWei,
+			timeInSecond,
+			['0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A'],
+			[[1, 1]],
+			['0x1c'],
+			[
+				[
+					'0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A',
+					'0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A'
+				]
+			]
+		];
 		// [
 		// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s],
 		// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s],

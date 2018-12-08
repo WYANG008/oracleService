@@ -17,6 +17,7 @@
 		"getStates": "ts-node ./src/index getStates",
 		"getStakes": "ts-node ./src/index getStakes",
 		"startOracle": "ts-node ./src/index startOracle",
+		"startOracleRegularly": "ts-node ./src/index startOracleRegularly",
 		"addList": "ts-node ./src/index addList",
 		"commitPrice": "ts-node ./src/index commitPrice"
 	},

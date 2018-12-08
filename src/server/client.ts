@@ -2,6 +2,7 @@
 import WebSocket from 'ws';
 import * as CST from '../common/constants';
 import { Dict, IRelayerInfo, IRelayerMessage, IStake } from '../common/types';
+import util from '../utils/util';
 
 const moduleName = 'Client';
 export default class Client {
@@ -19,14 +20,14 @@ export default class Client {
 		});
 		if (this.uiSocketServer)
 			this.uiSocketServer.on('connection', uiWS => {
-				console.log(logHeader + 'Connected');
+				util.logInfo(logHeader + 'Connected');
 				console.log(uiWS);
 				uiWS.on('message', msg => {
-					console.log(logHeader + `MsgFromUI: ${JSON.stringify(msg)}`);
+					util.logInfo(logHeader + `MsgFromUI: ${JSON.stringify(msg)}`);
 					this.handleUIMessage(msg);
 				});
 				uiWS.on('close', () => {
-					console.log(logHeader + `UI Socket closed`);
+					util.logInfo(logHeader + `UI Socket closed`);
 					this.uiSocket = null;
 				});
 				this.uiSocket = uiWS;
@@ -40,7 +41,7 @@ export default class Client {
 					this.handleRelayerMessage(msg);
 				});
 				this.relayers[relayerID].on('close', () => {
-					console.log(logHeader + `[${relayerID}]: Relayer Closed`);
+					util.logInfo(logHeader + `[${relayerID}]: Relayer Closed`);
 				});
 			});
 		}
@@ -57,7 +58,7 @@ export default class Client {
 				this.onRelayerReplySetAccount(message);
 				break;
 			default:
-				console.log(logHeader + `No such command: ${message.op} `);
+				util.logInfo(logHeader + `No such command: ${message.op} `);
 				break;
 		}
 	}
@@ -72,10 +73,10 @@ export default class Client {
 						data.accountId
 					}`
 			);
-			console.log(logHeader + `Resending setAccount to relayer`);
+			util.logInfo(logHeader + `Resending setAccount to relayer`);
 			this.onUISetAccount({ accountId: this.account });
 		} else {
-			console.log(logHeader + `setAccount successful`);
+			util.logInfo(logHeader + `setAccount successful`);
 			this.relayersInfo[data.relayerID] = data;
 			const msgToUI = {
 				op: 'update',
@@ -103,7 +104,7 @@ export default class Client {
 
 	public handleUIMessage(msg: any) {
 		const logHeader = `[${moduleName}.onUIMessage]:`;
-		console.log(logHeader + msg);
+		util.logInfo(logHeader + msg);
 		const message = JSON.parse(msg);
 		switch (message.op) {
 			case 'stake':
@@ -113,7 +114,7 @@ export default class Client {
 				this.onUISetAccount(message.data);
 				break;
 			default:
-				console.log(logHeader + `No such command: ${message.op}`);
+				util.logInfo(logHeader + `No such command: ${message.op}`);
 				break;
 		}
 	}

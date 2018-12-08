@@ -1,9 +1,10 @@
 // fix for @ledgerhq/hw-transport-u2f 4.28.0
 import '@babel/polyfill';
 import Web3 from 'web3';
-import {Contract, Signature } from 'web3/types';
-import ContractWrapper from './ContractWrapper';
+import { Contract, Signature } from 'web3/types';
 import { IOption } from '../common/types';
+
+import ContractWrapper from './ContractWrapper';
 // import { , EventLog } from 'web3/types';
 // import * as CST from '../common/constants';
 // import util from './util';
@@ -12,7 +13,6 @@ import { IOption } from '../common/types';
 // const Web3Accounts = require('web3-eth-accounts');
 // const Web3Personal = require('web3-eth-personal');
 // const Web3Utils = require('web3-utils');
-
 
 export enum Wallet {
 	None,
@@ -42,12 +42,10 @@ export default class Web3Util {
 			this.web3 = new Web3(new Web3.providers.HttpProvider(option.provider));
 			this.wallet = Wallet.None;
 		} else {
-			providerEngine = new Web3.providers.HttpProvider(option.provider)
+			providerEngine = new Web3.providers.HttpProvider(option.provider);
 
-			this.web3 = new Web3(
-				providerEngine
-			);
-			
+			this.web3 = new Web3(providerEngine);
+
 			this.wallet = Wallet.Local;
 		}
 		// this.web3Eth = new Web3Eth(providerEngine);
@@ -58,20 +56,19 @@ export default class Web3Util {
 		return new this.web3.eth.Contract(abi, address);
 	}
 
-
 	public getGasPrice() {
 		return this.web3Eth.getGasPrice();
 	}
 
-	public async sign(data: string, key: string):Promise<string|Signature> {
+	public async sign(data: string, key: string): Promise<string | Signature> {
 		return this.web3.eth.accounts.sign(data, key);
 	}
 
-	public async recover(message: string, v:string, r: string, s: string) {
+	public async recover(message: string, v: string, r: string, s: string) {
 		return this.web3.eth.accounts.recover(message, v, r, s);
 	}
 
-	public async getStates(){
+	public async getStates() {
 		// const states = await this.contract.methods.getStates().call();
 		const promiseList = [
 			this.contractWrapper.contract.methods.period().call(),
@@ -79,6 +76,7 @@ export default class Web3Util {
 			this.contractWrapper.contract.methods.openWindowTimeInSecond().call(),
 			this.contractWrapper.contract.methods.lastPriceTimeInSecond().call(),
 			this.contractWrapper.contract.methods.inceptionTimeInSecond().call()
+			// this.contractWrapper.contract.
 		];
 
 		const results = await Promise.all(promiseList);
@@ -89,21 +87,19 @@ export default class Web3Util {
 			openWindowTimeInSecond: results[2],
 			lastPriceTimeInSecond: results[3],
 			inceptionTimeInSecond: results[4]
-		}
-
+		};
 	}
-
 
 	public async stake(address: string, amtInWei: number) {
 		return this.contractWrapper.contract.methods.stake(amtInWei).send({
 			from: address
-		});;
+		});
 	}
 
 	public async unStake(address: string, amtInWei: number) {
 		return this.contractWrapper.contract.methods.unstake(amtInWei).send({
 			from: address
-		});;
+		});
 	}
 
 	public async getStakedToken(address: string) {
@@ -116,7 +112,6 @@ export default class Web3Util {
 	}
 	// uint public totalFeeders;
 	// address[] feederLists;
-
 
 	// public web3PersonalSign(account: string, message: string): Promise<string> {
 	// 	if (this.wallet !== Wallet.MetaMask) return Promise.reject();

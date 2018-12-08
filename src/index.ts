@@ -34,16 +34,41 @@ let client;
 const kovanManagerAccount = require('./keys/kovanManagerAccount.json');
 switch (tool) {
 	case 'startRelayers':
+		console.log(`Option: ` + JSON.stringify(option));
 		for (const relayerID of CST.RELAYER_PORTS) {
-			relayers[relayerID] = new Relayer(Number(relayerID));
-			setInterval(() => relayers[relayerID].updatePrice(), 3 * 1000);
-			schedule.scheduleJob('*/5 * * * * * ', () => {
-				relayers[relayerID].commitPrice({} as any);
+			relayers[relayerID] = new Relayer(Number(relayerID), option);
+			setInterval(() => relayers[relayerID].updatePrice(), 10 * 1000);
+			schedule.scheduleJob('*/30 * * * * *  ', () => {
+				util.logInfo('>>>>>>>' + `Commit Price`);
+				relayers[relayerID]
+					.commitPrice(option)
+					.then(res => util.logInfo(JSON.stringify(res)));
 			});
-			// setInterval(() => relayers[relayerID].commitPrice({} as any), 30 * 1000);
+			// relayers[relayerID].commitPrice(option);
+			// setInterval(() => relayers[relayerID].commitPrice({} as any), 60 * 1000);
 		}
 
 		break;
+	case 'startOracleRegularly':
+		schedule.scheduleJob('*/5 * * * *', () => {
+			const end = util.getPeriodEndTimestamp(moment.utc().valueOf() + 5 * 1000, 5, 0);
+			util.logInfo('startOracle' + moment.utc(end).format('YYYY-MM-DD HH:mm:ss'));
+			contractWrapper.startOracleRaw(
+				kovanManagerAccount.address,
+				kovanManagerAccount.privateKey,
+				end,
+				[
+					'0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A',
+					'0x191007577d31275c71C0E80064dCD5cE5268F566',
+					'0x773d5C1D30504fCcC608BAEa9a56F90Ff92ffA0D',
+					'0x47629962042a672e0DbF1a1AB6F8A38461E46543'
+				],
+				option.gasPrice || 2000000000,
+				option.gasLimit || 2000000
+			);
+		});
+		break;
+
 	case 'startClient':
 		client = new Client();
 		console.log(typeof client);
