@@ -107,6 +107,12 @@ export default class Web3Util {
 		});;
 	}
 
+	public async unStake(address: string, amtInWei: number) {
+		return this.contractWrapper.contract.methods.unstake(amtInWei).send({
+			from: address
+		});;
+	}
+
 
 	// public web3PersonalSign(account: string, message: string): Promise<string> {
 	// 	if (this.wallet !== Wallet.MetaMask) return Promise.reject();
