@@ -4,8 +4,8 @@ import util from './util';
 import * as CST from '../common/constants';
 import {
 	//  IContractStates,
-	IOption,
-	Signature
+	IOption
+	// Signature
 } from '../common/types';
 import Web3 from 'web3';
 // import { resolve } from 'dns';
