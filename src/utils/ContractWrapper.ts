@@ -90,6 +90,7 @@ export default class ContractWrapper {
 		address: string,
 		privateKey: string,
 		startTime: number,
+		list: string[],
 		gasPrice: number,
 		gasLimit: number,
 		nonce: number = -1
@@ -98,16 +99,25 @@ export default class ContractWrapper {
 		util.logInfo(`the account ${address} is starting Oracle`);
 		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
 		const abi = {
-			type: 'function',
 			inputs: [
 				{
 					name: 'startTime',
 					type: 'uint256'
+				},
+				{
+					name: 'whiteList',
+					type: 'address[]'
 				}
 			],
-			name: 'startOracle'
+			name: 'startOracle',
+			outputs: [
+				{
+					name: 'success',
+					type: 'bool'
+				}
+			]
 		};
-		const input = [startTime];
+		const input = [startTime, list];
 
 		const command = this.generateTxString(abi, input);
 		console.log(command);
@@ -177,33 +187,49 @@ export default class ContractWrapper {
 		util.logInfo(`the account ${address} is commitPriceRaw`);
 		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
 		const abi = {
-			"inputs": [
+			inputs: [
 				{
-				  "name": "priceInWei",
-				  "type": "uint256"
+					name: 'priceInWei',
+					type: 'uint256'
 				},
 				{
-				  "name": "timeInSecond",
-				  "type": "uint256"
-				}
-			  ],
-			  "name": "commitPrice",
-			  "outputs": [
+					name: 'timeInSecond',
+					type: 'uint256'
+				},
 				{
-				  "name": "success",
-				  "type": "bool"
+					name: 'addrs',
+					type: 'address[]'
+				},
+				{
+					name: 'timeStakeOfVoters',
+					type: 'uint256[2][]'
+				},
+				{
+					name: 'vList',
+					type: 'uint8[]'
+				},
+				{
+					name: 'rsList',
+					type: 'bytes32[2][]'
+				}
+			],
+			name: 'commitPrice',
+			outputs: [
+				{
+					name: 'success',
+					type: 'bool'
 				}
 			]
 		};
-		const input = [priceInWei, timeInSecond];
-			// [
-			// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s],
-			// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s],
-			// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s]
-			// 	// signatures[0],
-			// 	// signatures[1],
-			// 	// signatures[2]
-			// ]
+		const input = [priceInWei, timeInSecond, ['0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A'], [[1, 1]], ['0x1c'], [['0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A', '0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A']]];
+		// [
+		// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s],
+		// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s],
+		// 	[signatures[0].addr,signatures[0].timeInSecond,signatures[0].stakes,signatures[0].v,signatures[0].r, signatures[0].s]
+		// 	// signatures[0],
+		// 	// signatures[1],
+		// 	// signatures[2]
+		// ]
 		// ];
 		console.log(input);
 

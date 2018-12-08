@@ -59,14 +59,20 @@ switch (tool) {
 			moment()
 				.utc()
 				.endOf('hours')
-				.add(-20, 'minutes')
+				.add(-25, 'minutes')
 				.valueOf() / 1000
 		);
 		contractWrapper.startOracleRaw(
 			kovanManagerAccount.address,
 			kovanManagerAccount.privateKey,
 			nextHour,
-			option.gasPrice || 2000000000,
+			[
+				'0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A',
+				'0x191007577d31275c71C0E80064dCD5cE5268F566',
+				'0x773d5C1D30504fCcC608BAEa9a56F90Ff92ffA0D',
+				'0x47629962042a672e0DbF1a1AB6F8A38461E46543'
+			],
+			option.gasPrice || 8000000000,
 			option.gasLimit || 2000000
 		);
 		break;
@@ -91,7 +97,7 @@ switch (tool) {
 			kovanManagerAccount.privateKey,
 			100 * 1e18,
 			time,
-			option.gasPrice || 2000000000,
+			option.gasPrice || 8000000000,
 			option.gasLimit || 2000000
 		);
 		break;
