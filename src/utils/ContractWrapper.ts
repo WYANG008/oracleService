@@ -96,18 +96,17 @@ export default class ContractWrapper {
 		gasLimit: number,
 		nonce: number = -1
 	) {
-
 		util.logInfo(`the account ${address} is starting stake`);
 		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
 		const abi = {
-			"inputs": [
+			inputs: [
 				{
-				  "name": "amtInWei",
-				  "type": "uint256"
+					name: 'amtInWei',
+					type: 'uint256'
 				}
-			  ],
-			  "name": "stake",
-			  "outputs": []
+			],
+			name: 'stake',
+			outputs: []
 		};
 		const input = [amtInWei];
 
@@ -123,8 +122,6 @@ export default class ContractWrapper {
 			nonce,
 			command
 		);
-
-		
 	}
 
 	public async unStakeRaw(
@@ -135,18 +132,17 @@ export default class ContractWrapper {
 		gasLimit: number,
 		nonce: number = -1
 	) {
-
 		util.logInfo(`the account ${address} is starting stake`);
 		nonce = nonce === -1 ? await this.web3.eth.getTransactionCount(address) : nonce;
 		const abi = {
-			"inputs": [
+			inputs: [
 				{
-				  "name": "amtInWei",
-				  "type": "uint256"
+					name: 'amtInWei',
+					type: 'uint256'
 				}
-			  ],
-			  "name": "unStake",
-			  "outputs": []
+			],
+			name: 'unStake',
+			outputs: []
 		};
 		const input = [amtInWei];
 

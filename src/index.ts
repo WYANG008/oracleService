@@ -78,7 +78,9 @@ switch (tool) {
 		web3Util.getStates();
 		break;
 	case 'getStakes':
-		web3Util.getStakedToken('0x00BCE9Ff71E1e6494bA64eADBB54B6B7C0F5964A');
+		web3Util
+			.getStakedToken('0x47629962042a672e0DbF1a1AB6F8A38461E46543')
+			.then(res => console.log(res));
 		break;
 	case 'startOracle':
 		const nextHour = Math.floor(
@@ -112,10 +114,15 @@ switch (tool) {
 		);
 		break;
 	case 'stake':
+		const addr = '';
+		const sk = '';
+		const portNo = 8000;
+		const stakeAmt = (portNo - 8000 + 1) * 1000;
+		console.log(stakeAmt);
 		contractWrapper.stakeRaw(
-			kovanManagerAccount.address,
-			kovanManagerAccount.privateKey,
-			contractWrapper.web3.utils.toWei('1000', 'ether'),
+			addr,
+			sk,
+			contractWrapper.web3.utils.toWei(String(stakeAmt), 'ether'),
 			option.gasPrice || 2000000000,
 			option.gasLimit || 2000000
 		);
